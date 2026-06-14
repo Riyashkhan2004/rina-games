@@ -1,2 +1,35 @@
-# rina-games
-A collection of mini games developed using HTML, CSS and JavaScript.
+# Rina Games
+
+## About Project
+
+Rina Games is a collection of mini games created using web technologies.
+
+This project focuses on frontend development and interactive user experience.
+
+## Technologies Used
+
+- HTML
+- CSS
+- JavaScript
+
+## Features
+
+- Multiple mini games
+- Interactive UI
+- Responsive design
+- User friendly interface
+
+## Games Included
+
+- Game 1
+- Game 2
+- Game 3
+
+## How To Run
+
+1. Download the project
+2. Open index.html
+
+## Author
+
+Riyash Khan
