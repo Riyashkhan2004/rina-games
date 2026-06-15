@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <title>RINA Games</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-image: url('homeback.jpg');
+        }
+
+        nav {
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links li {
+            margin-right: 30px;
+        }
+
+        .nav-links li:last-child {
+            margin-right: 0;
+        }
+
+        nav a {
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        nav a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ff7e5f;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 600px) {
+            nav {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .nav-links {
+                margin-top: 10px;
+            }
+
+            .nav-links li {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .input {
+            height: 40px;
+            padding: 10px 40px;
+            border: 2px solid black;
+            font-size: 14px;
+            width: 200px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            pointer-events: all;
+            cursor: pointer;
+        }
+
+        .search-icon:hover {
+            opacity: 0.7;
+        }
+
+        .results {
+            border: 1px solid #ccc;
+            max-height: 150px;
+            overflow-y: auto;
+            background: white;
+            position: absolute;
+            width: 100%;
+            display: none;
+            z-index: 10;
+        }
+
+        .result-item {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .result-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .more-section {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .more-button {
+            position: relative;
+            margin: 15px;
+            width: 150px;
+            height: 150px;
+            border: 3px solid #000000;
+            border-radius: 50%;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        .more-button img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+         /* Modal styles */
+         .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.7); /* Black w/ opacity */
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px; /* Could be more or less, depending on screen size */
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .modal-button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #ff7e5f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .modal-button:hover {
+            background-color: #feb47b;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <ul class="nav-links">
+            <li><a href="main.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="history.html">History</a></li>
+        </ul>
+        <div class="input-container">
+            <input type="text" class="input" placeholder="Search..." id="searchInput" oninput="fetchGames()">
+            <img src="search-icon.png" alt="Search" class="search-icon" onclick="fetchGames()">
+            <div class="results" id="results"></div>
+        </div>
+        <div class="auth-buttons">
+            <button class="auth-button" onclick="showLogoutConfirmation()">Logout</button>
+        </div>        
+    </nav>
+    <!-- <div class="mini-container">
+        <div class="title">Rina</div>
+        <div class="button-container">
+            <button class="button" onclick="location.href='main2.html'">Home</button>
+            <button class="button" onclick="fetchGames()">Search</button>
+        </div>
+    </div> -->
+
+    <section class="more-section">
+        <div class="more-button">
+            <img src="tetris.png" alt="Tetris">
+            <a href="javascript:void(0);" onclick="playGame('Tetris', 'colortetris.html')">Tetris</a>
+        </div>
+        <div class="more-button">
+            <img src="rock.png" alt="Rock Paper Scissors">
+            <a href="javascript:void(0);" onclick="playGame('Rock Paper Scissors', 'rock.html')">Rock Paper Scissors</a>
+        </div>
+        <div class="more-button">
+            <img src="memory.png" alt="Memory Flip">
+            <a href="javascript:void(0);" onclick="playGame('Memory Flip Card', 'memory.html')">Memory Flip Card</a>
+        </div>
+        <div class="more-button">
+            <img src="candy.jfif" alt="Candy Crush">
+            <a href="javascript:void(0);" onclick="playGame('Toffee Crush', 'candycrush.html')">Toffee Crush</a>
+        </div>
+        <div class="more-button">
+            <img src="tennis.png" alt="Table Tennis">
+            <a href="javascript:void(0);" onclick="playGame('Table Tennis', 'tennis.html')">Table Tennis</a>
+        </div>
+        <div class="more-button">
+            <img src="space.png" alt="Space Shooter">
+            <a href="javascript:void(0);" onclick="playGame('Space Shooter', 'space.html')">Space Shooter</a>
+        </div>
+        <div class="more-button">
+            <img src="snake.png" alt="Snake">
+            <a href="snake.html">Snake</a>
+        </div>
+        <div class="more-button">
+            <img src="bomber.png" alt="Bomber Man">
+            <a href="javascript:void(0);" onclick="playGame('Bomber Man', 'bomberman.html')">Bomber Man</a>
+        </div>
+        <div class="more-button">
+            <img src="worm.jpg" alt="Worm">
+            <a href="javascript:void(0);" onclick="playGame('Worm.io', 'wormgame.html')">Worm.io</a>
+        </div>
+        <div class="more-button">
+            <img src="colortetris.png" alt="Color Tetris">
+            <a href="javascript:void(0);" onclick="playGame('Color Tetris', 'colortetris.html')">Color Tetris</a>
+        </div>
+        <div class="more-button">
+            <img src="breakout.png" alt="BreakOut">
+            <a href="javascript:void(0);" onclick="playGame('Break Brick', 'breakout.html')">Break Brick</a>
+        </div>
+        <div class="more-button">
+            <img src="frogger.webp" alt="Frogger">
+            <a href="javascript:void(0);" onclick="playGame('Cross Frog', 'frog.html')">Cross Frog</a>
+        </div>
+        <div class="more-button">
+            <img src="tictactoe.png" alt="Tic Tac Toe">
+            <a href="javascript:void(0);" onclick="playGame('Tic Tac Toe', 'tictactoe.html')">Tic Tac Toe</a>
+        </div>
+        <div class="more-button">
+            <img src="missile.png" alt="Missile Command">
+            <a href="javascript:void(0);" onclick="playGame('Missile Command', 'missile.html')">Missile Command</a>
+        </div>
+        <div class="more-button">
+            <img src="sokobon.png" alt="Sokoban">
+            <a href="javascript:void(0);" onclick="playGame('Sokoban', 'sokobon.html')">Sokoban</a>
+        </div>
+        <div class="more-button">
+            <img src="crossyroad.avif" alt="Crossy Road">
+            <a href="javascript:void(0);" onclick="playGame('Crossy Road', 'crossroad.html')">Crossy Road</a>
+        </div>
+        <div class="more-button">
+            <img src="jumpup.avif" alt="JumpUP">
+            <a href="javascript:void(0);" onclick="playGame('JumpUP', 'jumpup.html')">JumpUP</a>
+        </div>
+        <div class="more-button">
+            <img src="block.jfif" alt="Block Man">
+            <a href="javascript:void(0);" onclick="playGame('Block Man', 'blockman.html')">Block Man</a>
+        </div>
+        <div class="more-button">
+            <img src="bubble.png" alt="Bubble Shooter">
+            <a href="javascript:void(0);" onclick="playGame('Bubble Shooter', 'bubbleshooter.html')">Bubble Shooter</a>
+        </div>
+        <div class="more-button">
+            <img src="flappy.png" alt="Flappy Bird">
+            <a href="javascript:void(0);" onclick="playGame('Flappy Bird', 'flappy.html')">Flappy Bird</a>
+        </div>
+        <div class="more-button">
+            <img src="pong.png" alt="Ping Pong">
+            <a href="javascript:void(0);" onclick="playGame('Ping Pong', 'pong.html')">Ping Pong</a>
+        </div>
+        <div class="more-button">
+            <img src="chess.webp" alt="Chess">
+            <a href="javascript:void(0);" onclick="playGame('Chess', 'chess.html')">Chess</a>
+        </div>
+    </section>
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <h3>Are you sure you want to logout?</h3>
+            <button class="modal-button" onclick="logout()">Yes</button>
+            <button class="modal-button" onclick="closeModal()">No</button>
+        </div>
+    </div>
+    
+
+    <script>
+        function playGame(gameName, gameLink) {
+    const now = new Date();
+    const date = now.toLocaleDateString();
+    const time = now.toLocaleTimeString();
+
+    // Save to localStorage without asking for score
+    const gameHistory = JSON.parse(localStorage.getItem('gameHistory')) || [];
+    gameHistory.push({ name: gameName, date: date, time: time, score: null }); // Store null or omit score
+    localStorage.setItem('gameHistory', JSON.stringify(gameHistory));
+
+    // Redirect to the game page
+    window.location.href = gameLink;
+}
+
+        function fetchGames() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const resultsContainer = document.getElementById('results');
+
+            // Simulated game data
+            const sampleData = [
+                { name: 'Tetris', link: 'colortetris.html' },
+                { name: 'ColorTetris', link: 'colortetris.html' },
+                { name: 'Crossyroad', link: 'crossroad.html' },
+                { name: 'Snake', link: 'snake.html' },
+                { name: 'MemoryFlip', link: 'memory.html' },
+                { name: 'BubbleShooter', link: 'bubbleshooter.html' }
+            ];
+
+            // Check if input matches any game
+            const matchedGame = sampleData.find(game => game.name.toLowerCase() === input);
+
+            if (matchedGame) {
+                window.location.href = matchedGame.link; // Redirect to the matched game's link
+            } else {
+                // Filter games based on input for suggestions
+                const filteredGames = sampleData.filter(game =>
+                    game.name.toLowerCase().includes(input)
+                );
+
+                // Sort to bring the searched game to the top
+                const sortedGames = filteredGames.sort((a, b) => {
+                    return a.name.toLowerCase().indexOf(input) - b.name.toLowerCase().indexOf(input);
+                });
+
+                resultsContainer.innerHTML = '';
+                sortedGames.forEach(game => {
+                    const div = document.createElement('div');
+                    div.classList.add('result-item');
+                    div.textContent = game.name;
+                    div.onclick = () => window.location.href = game.link;
+                    resultsContainer.appendChild(div);
+                });
+
+                resultsContainer.style.display = sortedGames.length > 0 ? 'block' : 'none';
+            }
+        }
+
+        document.getElementById('searchInput').addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                fetchGames();
+            }
+        });
+
+        function showLogoutConfirmation() {
+            document.getElementById('logoutModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('logoutModal').style.display = 'none';
+        }
+
+        function logout() {
+            // Clear game history from localStorage
+            localStorage.removeItem('gameHistory');
+
+            // Redirect to the main page
+            location.href = 'main.html';
+        }
+    </script>
+</body>
+
+</html>

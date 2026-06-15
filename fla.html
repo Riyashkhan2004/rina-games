@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird Game</title>
+    <link rel="icon" href="img/bird.png">
+    <style>
+        body {
+            text-align: center;
+            background: #272b30;
+            margin-top: 5%;
+        }
+        h1 {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Flappy Bird</h1>
+    <canvas id="canvas" width="500" height="512"></canvas>
+    <script>
+        // Get the canvas by ID
+        const cvs = document.getElementById('canvas');
+        // Get the context 
+        const ctx = cvs.getContext("2d");
+
+        // Images to be drawn
+        const bird = new Image();
+        const bg = new Image();
+        const fg = new Image();
+        const pipeNorth = new Image();
+        const pipeSouth = new Image();
+        const scoreImage = new Image();
+        const gameover = new Image();
+
+        // The bird's initial position
+        let birdX = 10;
+        let birdY = 150;
+        // The score
+        let scoreText = 0;
+
+        // Function to get the score
+        const getScore = (score) => {
+            if (score < 10) {
+                scoreMusic.play();
+                return score;
+            } else {
+                switch (score) {
+                    case 10:
+                        return 0;
+                    default:
+                        return 1;
+                }
+            }
+        };
+
+        // Sound effects
+        const flyMusic = new Audio();
+        const scoreMusic = new Audio();
+        const hurt = new Audio();
+
+        flyMusic.src = "effects/fly.mp3";
+        scoreMusic.src = "effects/score.mp3";
+        hurt.src = "effects/falling.wav";
+
+        // Resources
+        bird.src = "img/bluebird-upflap.png";
+        bg.src = "img/background.png";
+        fg.src = "img/fg.png";
+        pipeNorth.src = "img/pipeNorth.png";
+        pipeSouth.src = "img/pipeSouth.png";
+        scoreImage.src = "img/score/" + scoreText + ".png";
+        gameover.src = "img/gameover.png";
+
+        // The game state
+        let finish = false;
+
+        // Event action to be executed
+        const mvUp = (e) => {
+            if (!finish) {
+                birdY -= 25; // Move the bird up
+                flyMusic.play(); // Play flap sound
+            }
+        };
+
+        // Drawing images
+        ctx.drawImage(bg, 0, 0);
+        ctx.drawImage(pipeNorth, 130, 0);
+        ctx.drawImage(pipeSouth, 130, 330);
+        ctx.drawImage(bird, birdX, birdY);
+
+        // Pipes and ground initialization
+        let pipe = [{ x: cvs.width, y: 0 }];
+        let ground = [{ x: 0, y: cvs.height - fg.height }];
+
+        // The flap animation
+        const moveBird = () => {
+            setTimeout(() => { bird.src = "img/bluebird-midflap.png"; }, 200);
+            setTimeout(() => { bird.src = "img/bluebird-downflap.png"; }, 300);
+            setTimeout(() => { bird.src = "img/bluebird-upflap.png"; }, 400);
+        };
+        moveBird();
+        const MB = setInterval(moveBird, 600);
+
+        // Start the game
+        const startGame = () => {
+            document.addEventListener("keyup", mvUp); // Jump event listener
+
+            if (!finish) {
+                ctx.save();
+                ctx.drawImage(bg, 0, -290);
+
+                // Adding pipes
+                for (let i in pipe) {
+                    ctx.drawImage(pipeNorth, pipe[i].x, pipe[i].y);
+                    ctx.drawImage(pipeSouth, pipe[i].x, pipe[i].y + pipeNorth.height + 85);
+                    pipe[i].x -= 1.2;
+
+                    // Generate new pipes
+                    if (Math.floor(pipe[i].x) == 344) {
+                        pipe.push({
+                            x: cvs.width,
+                            y: Math.floor(Math.random() * pipeNorth.height) - pipeNorth.height
+                        });
+                    }
+
+                    // Collision detection
+                    if (birdX + bird.width >= pipe[i].x && birdX <= pipe[i].x + pipeNorth.width &&
+                        (birdY <= pipe[i].y + pipeNorth.height || birdY + bird.height >= pipe[i].y + pipeNorth.height + 85) ||
+                        birdY + bird.height >= cvs.height - fg.height) {
+                        finish = true;
+                    }
+
+                    // Score increment
+                    if (Math.floor(pipe[i].x) == birdX - bird.width) {
+                        scoreText++;
+                        scoreImage.src = "img/score/" + getScore(scoreText) + ".png";
+                    }
+                }
+
+                // Draw ground
+                for (let i in ground) {
+                    ctx.drawImage(fg, ground[i].x, cvs.height - fg.height);
+                    ctx.drawImage(fg, ground[i].x + fg.width, cvs.height - fg.height);
+                    ground[i].x--;
+
+                    // Reset ground position
+                    if (ground[i].x == -100) {
+                        ground.push({ x: 0, y: cvs.height - fg.height });
+                    }
+                }
+
+                // Bird movement
+                birdY++;
+                ctx.rotate(0);
+                ctx.drawImage(bird, birdX, birdY);
+                ctx.restore();
+                ctx.drawImage(scoreImage, 240, 120);
+
+                // Repeat the scene
+                requestAnimationFrame(startGame);
+            } else {
+                // Game over scenario
+                hurt.play();
+                ctx.drawImage(gameover, 150, 150);
+                clearInterval(MB);
+
+                // Restart the game on keyup
+                document.addEventListener("keyup", () => {
+                    location.reload();
+                });
+            }
+        };
+
+        // Start the game
+        startGame();
+    </script>
+</body>
+</html>

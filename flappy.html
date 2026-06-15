@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <title>Flappy Bird Clone</title>
+    <style>
+        body {
+            margin: 0;
+            background: linear-gradient(to top, #87CEEB, #ffffff);
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        .game-container {
+            position: relative;
+            width: 900px;
+            height: 700px;
+            margin: 0 auto;
+            overflow: hidden;
+            border: 5px solid #333;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            background: #70c5ce;
+        }
+        .bird {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: url('fla.png') no-repeat center;
+            background-size: cover;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+        .pipe {
+            position: absolute;
+            width: 50px;
+            background: #228B22;
+        }
+        .pipe.top {
+            top: 0;
+        }
+        .pipe.bottom {
+            bottom: 0;
+        }
+        .score {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #ff5f6d, #ffc371);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            z-index: 10;
+            color: white;
+        }
+        .restart-button {
+            padding: 15px 30px;
+            font-size: 20px;
+            color: white;
+            background: linear-gradient(135deg, #42e695, #3bb2b8);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .restart-button:hover {
+            background: linear-gradient(135deg, #3bb2b8, #42e695);
+            transform: scale(1.05);
+        }
+        .restart-button:active {
+            transform: scale(0.95);
+        }
+        .mini-container {
+            position: absolute;
+            top: 10px;
+            left: 10px; /* Positioning the mini-container to the left */
+            width: 100px;
+            padding: 20px;
+            background-color: #ffe4e1;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000; /* Ensure it stays on top */
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .button-container {
+            display: flex;
+            gap: 10px;
+        }
+        .button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #ff69b4;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex; /* Flexbox for icon and text alignment */
+            align-items: center; /* Center items vertically */
+            justify-content: center; /* Center items horizontally */
+        }
+        .button:hover {
+            background-color: #ff1493;
+        }
+        .button i {
+            margin-right: 5px; /* Space between icon and text */
+        }
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+        }
+        .auth-button {
+            background-color: #ffffff;
+            color: #ff7e5f;
+            border: 2px solid #ff7e5f;
+            border-radius: 5px;
+            padding: 10px 15px;
+            margin-left: 20px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        .auth-button:hover {
+            background-color: rgba(255, 126, 95, 0.1);
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="mini-container">
+        <div class="title">Rina</div>
+        <div class="button-container">
+            <button class="button" onclick="location.href='main2.html'">
+                <i class="fa fa-home"></i>
+            </button>
+            <button class="button" onclick="location.href='search.html'">
+                <i class="fa fa-search"></i>
+            </button>
+        </div>
+    </div>
+    <div class="game-container" id="game-container">
+        <div class="bird" id="bird" style="top: 200px;"></div>
+        <div class="score" id="score">0</div>
+    </div>
+    <div class="modal" id="modal">
+        <h2>Game Over!</h2>
+        <p id="final-score">Your score: 0</p>
+        <button id="restart-button" class="restart-button">Restart</button>
+    </div>
+    <script>
+        const gameContainer = document.getElementById('game-container');
+        const bird = document.getElementById('bird');
+        const scoreDisplay = document.getElementById('score');
+        const modal = document.getElementById('modal');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const restartButton = document.getElementById('restart-button');
+        
+        let birdY = 200;
+        let gravity = 0.4; // Decreased gravity for slower falling
+        let lift = -10; // Decreased lift for a gentler jump
+        let velocity = 0;
+        let score = 0;
+        let pipes = [];
+        let frame = 0;
+        let gameOver = false;
+
+        function jump() {
+            velocity = lift;
+        }
+
+        function createPipe() {
+            const pipeGap = 300; // Increased pipe gap
+            const pipeHeight = Math.random() * (gameContainer.clientHeight - pipeGap - 50) + 50;
+            const pipeTop = document.createElement('div');
+            const pipeBottom = document.createElement('div');
+
+            pipeTop.className = 'pipe top';
+            pipeTop.style.height = pipeHeight + 'px';
+            pipeTop.style.left = '700px'; // Adjusted for increased width
+
+            pipeBottom.className = 'pipe bottom';
+            pipeBottom.style.height = (gameContainer.clientHeight - pipeHeight - pipeGap) + 'px';
+            pipeBottom.style.left = '800px'; // Adjusted for increased width
+
+            gameContainer.appendChild(pipeTop);
+            gameContainer.appendChild(pipeBottom);
+
+            pipes.push({ top: pipeTop, bottom: pipeBottom });
+        }
+
+        function updatePipes() {
+            pipes.forEach((pipe, index) => {
+                let pipeLeft = parseInt(pipe.top.style.left);
+                pipe.top.style.left = (pipeLeft - 3) + 'px'; // Decreased speed
+                pipe.bottom.style.left = (pipeLeft - 3) + 'px'; // Decreased speed
+
+                if (pipeLeft < -50) {
+                    gameContainer.removeChild(pipe.top);
+                    gameContainer.removeChild(pipe.bottom);
+                    pipes.splice(index, 1);
+                    score++;
+                }
+
+                if (checkCollision(pipe)) {
+                    gameOver = true;
+                }
+            });
+        }
+
+        function checkCollision(pipe) {
+            const birdRect = bird.getBoundingClientRect();
+            const topPipeRect = pipe.top.getBoundingClientRect();
+            const bottomPipeRect = pipe.bottom.getBoundingClientRect();
+
+            return (
+                birdRect.left < topPipeRect.right &&
+                birdRect.right > topPipeRect.left &&
+                (birdRect.top < topPipeRect.bottom || birdRect.bottom > bottomPipeRect.top)
+            );
+        }
+
+        function update() {
+            if (gameOver) {
+                finalScoreDisplay.innerText = 'Your score: ' + score;
+                modal.style.display = 'block';
+                return;
+            }
+
+            velocity += gravity;
+            birdY += velocity;
+
+            if (birdY < 0) birdY = 0;
+            if (birdY > gameContainer.clientHeight - 40) {
+                birdY = gameContainer.clientHeight - 40;
+                gameOver = true;
+            }
+
+            bird.style.top = birdY + 'px';
+            updatePipes();
+            scoreDisplay.innerText = score;
+
+            if (frame % 100 === 0) { // Adjusted to create pipes less frequently
+                createPipe();
+            }
+
+            frame++;
+            requestAnimationFrame(update);
+        }
+
+        function resetGame() {
+            pipes.forEach(pipe => {
+                gameContainer.removeChild(pipe.top);
+                gameContainer.removeChild(pipe.bottom);
+            });
+            pipes = [];
+            score = 0;
+            birdY = 200;
+            velocity = 0;
+            gameOver = false;
+            scoreDisplay.innerText = score;
+            modal.style.display = 'none';
+            requestAnimationFrame(update);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                jump();
+            }
+        });
+
+        restartButton.addEventListener('click', resetGame);
+
+        update();
+    </script>
+</body>
+</html>

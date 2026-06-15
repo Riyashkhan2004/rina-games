@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Basic Breakout HTML Game</title>
+  <meta charset="UTF-8">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+    body {
+      background: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    canvas {
+      border: 1px solid white;
+    }
+    #game-over {
+      position: absolute;
+      color: white;
+      font-size: 30px;
+      display: none;
+      text-align: center;
+    }
+    #restart-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="game-over">
+  Game Over!
+  <br>
+  <button id="restart-btn">Restart</button>
+</div>
+<script>
+const canvas = document.getElementById('game');
+const context = canvas.getContext('2d');
+
+canvas.width = window.innerWidth * 0.8; // Set width to 80% of window width
+canvas.height = window.innerHeight * 0.8; // Set height to 80% of window height
+
+const level1 = [
+  ['R','R','R','O','O','O','G','G','G','Y','Y','Y','R','R','O','O','O','G','G','G','Y','Y','Y','R','R'],
+  ['R','R','R','O','O','O','G','G','G','Y','Y','Y','R','R','R','O','O','O','G','G','G','Y','Y','Y','R'],
+  ['O','O','O','Y','Y','Y','R','R','R','G','G','G','O','O','Y','Y','Y','R','R','R','G','G','G','O','O'],
+  ['G','G','G','Y','Y','Y','R','R','R','O','B','B','G','G','G','Y','Y','Y','R','R','R','O','O','O','G'],
+  ['Y','Y','Y','R','R','R','O','O','O','G','B','G','Y','B','R','R','O','O','O','G','G','G','Y','Y','G'],
+  ['G','G','G','O','O','O','Y','Y','Y','R','R','R','B','G','O','O','Y','Y','Y','R','R','R','G','G','G'],
+];
+
+const colorMap = {
+  'R': 'red',
+  'O': 'orange',
+  'G': 'green',
+  'Y': 'yellow',
+  'B': 'blue'
+};
+
+const brickGap = 4; // Increased gap between bricks
+const brickWidth = 50; // Increased brick width
+const brickHeight = 20; // Increased brick height
+const wallSize = 13;
+const bricks = [];
+
+for (let row = 0; row < level1.length; row++) {
+  for (let col = 0; col < level1[row].length; col++) {
+    const colorCode = level1[row][col];
+    if (colorCode) {
+      bricks.push({
+        x: wallSize + (brickWidth + brickGap) * col,
+        y: wallSize + (brickHeight + brickGap) * row,
+        color: colorMap[colorCode],
+        width: brickWidth,
+        height: brickHeight
+      });
+    }
+  }
+}
+
+const paddle = {
+  x: canvas.width / 2 - 75, // Wider paddle
+  y: canvas.height - 50,
+  width: 140, // Increased paddle width
+  height: 20,
+  dx: 0
+};
+
+const ball = {
+  x: canvas.width / 2,
+  y: canvas.height / 2,
+  width: 25, // Increased ball size
+  height: 10,
+  speed: 4, // Increased ball speed
+  dx: 0,
+  dy: 0
+};
+
+
+let isGameOver = false;
+
+function collides(obj1, obj2) {
+  return obj1.x < obj2.x + obj2.width &&
+         obj1.x + obj1.width > obj2.x &&
+         obj1.y < obj2.y + obj2.height &&
+         obj1.y + obj1.height > obj2.y;
+}
+
+function resetGame() {
+  isGameOver = false;
+  document.getElementById('game-over').style.display = 'none';
+  bricks.length = 0; // Reset bricks
+  for (let row = 0; row < level1.length; row++) {
+    for (let col = 0; col < level1[row].length; col++) {
+      const colorCode = level1[row][col];
+      if (colorCode) {
+        bricks.push({
+          x: wallSize + (brickWidth + brickGap) * col,
+          y: wallSize + (brickHeight + brickGap) * row,
+          color: colorMap[colorCode],
+          width: brickWidth,
+          height: brickHeight
+        });
+      }
+    }
+  }
+  ball.x = canvas.width / 2;
+  ball.y = canvas.height / 2;
+  ball.dx = 0;
+  ball.dy = 0;
+  paddle.x = canvas.width / 2 - paddle.width / 2;
+  requestAnimationFrame(loop);
+}
+
+function loop() {
+  if (isGameOver) return;
+
+  requestAnimationFrame(loop);
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  paddle.x += paddle.dx;
+
+  if (paddle.x < wallSize) {
+    paddle.x = wallSize;
+  } else if (paddle.x + paddle.width > canvas.width - wallSize) {
+    paddle.x = canvas.width - wallSize - paddle.width;
+  }
+
+  ball.x += ball.dx;
+  ball.y += ball.dy;
+
+  if (ball.x < wallSize) {
+    ball.x = wallSize;
+    ball.dx *= -1;
+  } else if (ball.x + ball.width > canvas.width - wallSize) {
+    ball.x = canvas.width - wallSize - ball.width;
+    ball.dx *= -1;
+  }
+  if (ball.y < wallSize) {
+    ball.y = wallSize;
+    ball.dy *= -1;
+  }
+  if (ball.y > canvas.height) {
+    isGameOver = true;
+    document.getElementById('game-over').style.display = 'block';
+    return;
+  }
+
+  if (collides(ball, paddle)) {
+    ball.dy *= -1;
+    ball.y = paddle.y - ball.height;
+  }
+
+  for (let i = 0; i < bricks.length; i++) {
+    const brick = bricks[i];
+    if (collides(ball, brick)) {
+      bricks.splice(i, 1);
+      if (ball.y + ball.height - ball.speed <= brick.y ||
+          ball.y >= brick.y + brick.height - ball.speed) {
+        ball.dy *= -1;
+      } else {
+        ball.dx *= -1;
+      }
+      break;
+    }
+  }
+
+  context.fillStyle = 'lightgrey';
+  context.fillRect(0, 0, canvas.width, wallSize);
+  context.fillRect(0, 0, wallSize, canvas.height);
+  context.fillRect(canvas.width - wallSize, 0, wallSize, canvas.height);
+
+  context.beginPath(); // Start a new path for drawing the ball
+context.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2); // Draw a circle
+context.fillStyle = 'red'; // Set ball color to red
+context.fill(); // Fill the circle
+context.closePath(); // Close the path for the ball
+
+  if (ball.dx || ball.dy) {
+    context.fillStyle = 'red'; // Set ball color to red
+    context.fillRect(ball.x, ball.y, ball.width, ball.height);
+  }
+
+  bricks.forEach(function(brick) {
+    context.fillStyle = brick.color;
+    context.fillRect(brick.x, brick.y, brick.width, brick.height);
+  });
+
+  context.fillStyle = 'cyan';
+  context.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.which === 37) {
+    paddle.dx = -5; // Increased paddle speed
+  } else if (e.which === 39) {
+    paddle.dx = 5; // Increased paddle speed
+  }
+  if (ball.dx === 0 && ball.dy === 0 && e.which === 32) {
+    ball.dx = ball.speed;
+    ball.dy = -ball.speed;
+  }
+});
+
+document.addEventListener('keyup', function(e) {
+  if (e.which === 37 || e.which === 39) {
+    paddle.dx = 0;
+  }
+});
+
+document.getElementById('restart-btn').addEventListener('click', resetGame);
+
+// Start the game in fullscreen mode
+document.documentElement.requestFullscreen();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

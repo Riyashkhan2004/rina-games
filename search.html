@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <title>Search Games - RINA Games</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-image: url('homeback.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+        }
+
+        nav {
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .input-container {
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .input {
+            height: 40px;
+            padding: 10px 40px;
+            border: 2px solid black;
+            font-size: 14px;
+            width: 300px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .results {
+            border: 1px solid #ccc;
+            max-height: 150px;
+            overflow-y: auto;
+            background: white;
+            position: absolute;
+            width: 100%;
+            display: none;
+            z-index: 10;
+        }
+
+        .result-item {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .result-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .mini-container {
+            position: sticky;
+            top: 20px;
+            left: 10px;
+            padding: 20px;
+            background-color: #ffe4e1;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            animation: bloom 5s infinite;
+            z-index: 1000;
+        }
+
+        @keyframes bloom {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #ff69b4;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .button:hover {
+            background-color: #ff1493;
+        }
+
+        .categories {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .category-button {
+            color: rgb(0, 0, 0);
+            font-size: larger;
+            font-weight: 200;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            border: none;
+            border-radius: 5px;
+            padding: 50px; 
+            margin: 10px; 
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            display: flex;
+            align-items: center; 
+            position: relative; 
+            overflow: hidden; 
+            text-align: center; 
+        }
+
+        .category-button.arcade {
+            background-image: url('arcade.avif');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .category-button.board {
+            background-image: url('board.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .category-button.puzzle {
+            background-image: url('puzzle.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .category-button.action {
+            background-image: url('action.webp');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .category-button:hover {
+            background-color: rgba(255, 126, 95, 0.8);
+            transform: scale(1.05);
+        }
+
+        .game-suggestions-container {
+            margin-top: 20px;
+            display: none;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+        }
+
+        .game-suggestion {
+            margin: 10px 0;
+        }
+
+        .game-button {
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+            margin: 5px 0;
+            transition: background-color 0.3s;
+            width: 100%; /* Make buttons full width */
+        }
+
+        .game-button:hover {
+            background-color: #ff1493;
+        }
+
+        @media (max-width: 600px) {
+            .category-button {
+                flex: 1 1 45%;
+                font-size: 14px; 
+            }
+            .game-button {
+                font-size: 14px; /* Adjust font size for smaller screens */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <h1>RINA Games</h1>
+        <div class="input-container">
+            <input type="text" class="input" placeholder="Search..." id="searchInput" oninput="fetchGames()">
+            <img src="search-icon.png" alt="Search" class="search-icon" onclick="fetchGames()">
+            <div class="results" id="results"></div>
+        </div>
+    </nav>
+    
+    <div class="categories">
+        <button class="category-button arcade" onclick="showGames('arcade')">
+            <i class="fas fa-gamepad"></i> Arcade
+        </button>
+        <button class="category-button board" onclick="showGames('board')">
+            <i class="fas fa-chess"></i> Board
+        </button>
+        <button class="category-button puzzle" onclick="showGames('puzzle')">
+            <i class="fas fa-puzzle-piece"></i> Puzzle
+        </button>
+        <button class="category-button action" onclick="showGames('action')">
+            <i class="fas fa-fist-raised"></i> Action
+        </button>
+    </div>
+
+    <div class="mini-container">
+        <div class="title">Rina</div>
+        <div class="button-container">
+            <button class="button" onclick="location.href='main2.html'">
+                <i class="fa fa-home"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="game-suggestions-container" id="gameSuggestions"></div>
+
+    <script>
+        const gamesByCategory = {
+            arcade: [
+                { name: 'Tetris', link: 'colortetris.html' },
+                { name: 'Flappy Bird', link: 'flappy.html' },
+                { name: 'Pac-Man', link: 'pacman.html' }
+            ],
+            board: [
+                { name: 'Chess', link: 'chess.html' },
+                { name: 'Checkers', link: 'checkers.html' },
+                { name: 'Monopoly', link: 'monopoly.html' }
+            ],
+            puzzle: [
+                { name: 'Sudoku', link: 'sudoku.html' },
+                { name: 'Jigsaw', link: 'jigsaw.html' },
+                { name: 'Memory Flip', link: 'memory.html' }
+            ],
+            action: [
+                { name: 'Crossy Road', link: 'crossroad.html' },
+                { name: 'Snake', link: 'snake.html' },
+                { name: 'Bubble Shooter', link: 'bubbleshooter.html' }
+            ]
+        };
+
+        function showGames(category) {
+            const suggestionsContainer = document.getElementById('gameSuggestions');
+            suggestionsContainer.innerHTML = ''; // Clear previous suggestions
+            suggestionsContainer.style.display = 'block'; // Show the container
+
+            const games = gamesByCategory[category] || [];
+            games.forEach(game => {
+                const button = document.createElement('button');
+                button.classList.add('game-button');
+                button.textContent = game.name;
+                button.onclick = () => window.location.href = game.link;
+                suggestionsContainer.appendChild(button);
+            });
+        }
+
+        function fetchGames() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const resultsContainer = document.getElementById('results');
+
+            const sampleData = [
+                { name: 'Tetris', link: 'colortetris.html' },
+                { name: 'ColorTetris', link: 'colortetris.html' },
+                { name: 'Crossyroad', link: 'crossroad.html' },
+                { name: 'Snake', link: 'snake.html' },
+                { name: 'MemoryFlip', link: 'memory.html' },
+                { name: 'BubbleShooter', link: 'bubbleshooter.html' },
+                { name: 'FlappyBird', link: 'flappy.html' },
+                { name: 'PingPong', link: 'pong.html' }
+            ];
+
+            const matchedGame = sampleData.find(game => game.name.toLowerCase() === input);
+
+            if (matchedGame) {
+                window.location.href = matchedGame.link; // Redirect to the matched game's link
+            } else {
+                const filteredGames = sampleData.filter(game =>
+                    game.name.toLowerCase().includes(input)
+                );
+
+                resultsContainer.innerHTML = '';
+                filteredGames.forEach(game => {
+                    const div = document.createElement('div');
+                    div.classList.add('result-item');
+                    div.textContent = game.name;
+                    div.onclick = () => window.location.href = game.link;
+                    resultsContainer.appendChild(div);
+                });
+
+                resultsContainer.style.display = filteredGames.length > 0 ? 'block' : 'none';
+            }
+        }
+
+        document.getElementById('searchInput').addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                fetchGames();
+            }
+        });
+    </script>
+</body>
+
+</html>

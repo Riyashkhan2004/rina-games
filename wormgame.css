@@ -1,0 +1,27 @@
+h1 {
+  font-family: 'Black Han Sans', sans-serif;
+text-align: center;
+color: red;
+}
+
+
+
+#parent {
+display: inline-block;
+
+}
+
+#parent-wrapper{
+background-color: #222;
+text-align: center;
+height: auto;
+width: auto;
+
+}
+
+
+#label {
+  color: #0CF;
+
+}
+#instruction{color:white;}

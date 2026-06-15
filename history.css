@@ -1,0 +1,110 @@
+/* Global Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
+
+h1, h2 {
+    text-align: center;
+    color: #4A90E2;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+/* Form Styles */
+#scoreForm {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    margin: 0 auto 30px auto;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="number"],
+select {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    transition: border-color 0.3s;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+    border-color: #4A90E2;
+    outline: none;
+}
+
+/* Button Styles */
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #4A90E2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #357ABD;
+}
+
+/* Table Styles */
+#scoreHistory {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+#scoreHistory th, 
+#scoreHistory td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ccc;
+}
+
+#scoreHistory th {
+    background-color: #4A90E2;
+    color: white;
+}
+
+#scoreHistory tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+#scoreHistory tr:hover {
+    background-color: #e8f4fa;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    #scoreForm {
+        width: 90%;
+    }
+
+    #scoreHistory {
+        font-size: 14px;
+    }
+
+    button {
+        font-size: 14px;
+    }
+}
