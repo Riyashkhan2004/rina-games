@@ -37,3 +37,12 @@ This project focuses on frontend development and interactive user experience.
 ## Author
 
 Riyash Khan
+
+
+## Screenshots
+
+### Home Page
+![Home Page](screenshots/homepage.png)
+
+### History
+![Dashboard](screenshots/history.png)
