@@ -42,7 +42,13 @@ Riyash Khan
 ## Screenshots
 
 ### Home Page
-![Home Page](screenshots/homepage.png)
+![Home Page](Screenshots/homepage.png)
 
 ### History
-![Dashboard](screenshots/history.png)
+![History](Screenshots/history.png)
+
+### Brick Break Game
+![Brick Break Game](Screenshots/brickbreak.png)
+
+### Tic-Tac-Toe Game
+![Tic-Tac-Toe Game](Screenshots/tictactoe.png)
