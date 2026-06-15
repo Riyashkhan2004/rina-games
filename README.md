@@ -21,9 +21,13 @@ This project focuses on frontend development and interactive user experience.
 
 ## Games Included
 
-- Game 1
-- Game 2
-- Game 3
+- Candy crush
+- Socobon
+- tetris
+- chess
+- breackout
+- bubble shooter
+- ping pong,etc.
 
 ## How To Run
 
